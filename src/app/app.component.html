@@ -1,9 +1,10 @@
-<div *ngIf="appLoading" class="loading">
-    <div class="text-center middle">
-        <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-    </div>
-</div>
+<app-loading [condition]="appLoading"></app-loading>
+<!-- PROGRESS BAR -->
+<fuse-progress-bar></fuse-progress-bar>
+<!-- / PROGRESS BAR -->
 
-<ng-snotify></ng-snotify>
-
-<router-outlet></router-outlet>
+<!-- VERTICAL LAYOUT 1 -->
+<ng-container *ngIf="fuseConfig.layout.style === 'vertical-layout-1'">
+    <vertical-layout-1></vertical-layout-1>
+</ng-container>
+<!-- / VERTICAL LAYOUT 1 -->

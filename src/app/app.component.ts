@@ -1,105 +1,204 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AlertService } from './core/services';
-import { Router, Event, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Platform } from '@angular/cdk/platform';
+import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { NgcCookieConsentService, NgcInitializeEvent, NgcStatusChangeEvent, NgcNoCookieLawEvent } from 'ngx-cookieconsent';
-import { Subscription } from 'rxjs';
+import { FuseConfigService } from '@fuse/services/config.service';
+import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
+import { FuseSidebarService } from '@fuse/components/sidebar/sidebar.service';
+import { FuseSplashScreenService } from '@fuse/services/splash-screen.service';
+import { FuseTranslationLoaderService } from '@fuse/services/translation-loader.service';
+
+import { navigation } from 'app/navigation/navigation';
+import { supportNavigation } from 'app/navigation/support_navigation';
+
+import { locale as navigationEnglish } from 'app/navigation/i18n/en';
+import { locale as navigationTurkish } from 'app/navigation/i18n/tr';
+import { AlertService, AuthService } from './core/services';
+import { UserRole } from './core/enums/UserRole';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+    selector   : 'app',
+    templateUrl: './app.component.html',
+    styleUrls  : ['./app.component.scss']
 })
+export class AppComponent implements OnInit, OnDestroy
+{
+    fuseConfig: any;
+    navigation: any;
+    supportNavigation: any;
 
-export class AppComponent implements OnInit, OnDestroy  {
+    // Private
+    private _unsubscribeAll: Subject<any>;
 
-  // keep refs to subscriptions to be able to unsubscribe later
-  private popupOpenSubscription: Subscription;
-  private popupCloseSubscription: Subscription;
-  private initializeSubscription: Subscription;
-  private statusChangeSubscription: Subscription;
-  private revokeChoiceSubscription: Subscription;
-  private noCookieLawSubscription: Subscription;
+    public appLoading = false;
+    /**
+     * Constructor
+     *
+     * @param {DOCUMENT} document
+     * @param {FuseConfigService} _fuseConfigService
+     * @param {FuseNavigationService} _fuseNavigationService
+     * @param {FuseSidebarService} _fuseSidebarService
+     * @param {FuseSplashScreenService} _fuseSplashScreenService
+     * @param {FuseTranslationLoaderService} _fuseTranslationLoaderService
+     * @param {Platform} _platform
+     * @param {TranslateService} _translateService
+     */
+    constructor(
+        @Inject(DOCUMENT) private document: any,
+        private _fuseConfigService: FuseConfigService,
+        private _fuseNavigationService: FuseNavigationService,
+        private _fuseSidebarService: FuseSidebarService,
+        private _fuseSplashScreenService: FuseSplashScreenService,
+        private _fuseTranslationLoaderService: FuseTranslationLoaderService,
+        private _translateService: TranslateService,
+        private _platform: Platform,
+        private _alertService: AlertService,
+        private _authService: AuthService
+    )
+    {
+        // Get default navigation
+        this.navigation = navigation;
+        this.supportNavigation = supportNavigation;
 
-  title = 'zaubervpn';
+        // Register the navigation to the service
+        this._fuseNavigationService.register('main', this.navigation);
+        this._fuseNavigationService.register('support', this.supportNavigation);
 
-  appLoading = false;
+        if (this._authService.isLoggedIn) {
+            const currentUser = this._authService.getCurrentUser();
+            if (currentUser.roleID === UserRole.ADMIN) {
+                this._fuseNavigationService.setCurrentNavigation('main');
+            } else {
+                this._fuseNavigationService.setCurrentNavigation('support');
+            }
+        } else {
+            this._fuseNavigationService.setCurrentNavigation('support');
+        }
+        // Set the main navigation as our current navigation
+        
 
-  constructor(
-    private router: Router,
-    private _alertService: AlertService,
-    private ccService: NgcCookieConsentService
-  ) {
+        // Add languages
+        this._translateService.addLangs(['en', 'tr']);
 
-    // when routing loading indicator
-    this.router.events.subscribe((event: Event) => {
-      switch (true) {
-        case event instanceof NavigationStart: {
-          setTimeout(() => {
-            this._alertService.setAppLoading();
-          });
-          break;
+        // Set the default language
+        this._translateService.setDefaultLang('en');
+
+        // Set the navigation translations
+        this._fuseTranslationLoaderService.loadTranslations(navigationEnglish, navigationTurkish);
+
+        // Use a language
+        this._translateService.use('en');
+
+        /**
+         * ----------------------------------------------------------------------------------------------------
+         * ngxTranslate Fix Start
+         * ----------------------------------------------------------------------------------------------------
+         */
+
+        /**
+         * If you are using a language other than the default one, i.e. Turkish in this case,
+         * you may encounter an issue where some of the components are not actually being
+         * translated when your app first initialized.
+         *
+         * This is related to ngxTranslate module and below there is a temporary fix while we
+         * are moving the multi language implementation over to the Angular's core language
+         * service.
+         **/
+
+        // Set the default language to 'en' and then back to 'tr'.
+        // '.use' cannot be used here as ngxTranslate won't switch to a language that's already
+        // been selected and there is no way to force it, so we overcome the issue by switching
+        // the default language back and forth.
+        /**
+         setTimeout(() => {
+            this._translateService.setDefaultLang('en');
+            this._translateService.setDefaultLang('tr');
+         });
+         */
+
+        /**
+         * ----------------------------------------------------------------------------------------------------
+         * ngxTranslate Fix End
+         * ----------------------------------------------------------------------------------------------------
+         */
+
+        // Add is-mobile class to the body if the platform is mobile
+        if ( this._platform.ANDROID || this._platform.IOS )
+        {
+            this.document.body.classList.add('is-mobile');
         }
 
-        case event instanceof NavigationEnd:
-        case event instanceof NavigationCancel:
-        case event instanceof NavigationError: {
-          setTimeout(() => {
-            this._alertService.clearAppLoading();
-            window.scrollTo(0, 0);
-          }, 400);
-          break;
-        }
+        // Set the private defaults
+        this._unsubscribeAll = new Subject();
 
-        default: {
-          break;
-        }
-      }
-    });
+        this._alertService.getAppLoading().subscribe(value => this.appLoading = value);
+    }
 
-    this._alertService.getAppLoading().subscribe(value => this.appLoading = value);
-  }
+    // -----------------------------------------------------------------------------------------------------
+    // @ Lifecycle hooks
+    // -----------------------------------------------------------------------------------------------------
 
-  ngOnInit() {
-    // subscribe to cookieconsent observables to react to main events
-    this.popupOpenSubscription = this.ccService.popupOpen$.subscribe(
-      () => {
-        // you can use this.ccService.getConfig() to do stuff...
-      });
+    /**
+     * On init
+     */
+    ngOnInit(): void
+    {
+        // Subscribe to config changes
+        this._fuseConfigService.config
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((config) => {
 
-    this.popupCloseSubscription = this.ccService.popupClose$.subscribe(
-      () => {
-        // you can use this.ccService.getConfig() to do stuff...
-      });
+                this.fuseConfig = config;
 
-    this.initializeSubscription = this.ccService.initialize$.subscribe(
-      (event: NgcInitializeEvent) => {
-        // you can use this.ccService.getConfig() to do stuff...
-      });
+                // Boxed
+                if ( this.fuseConfig.layout.width === 'boxed' )
+                {
+                    this.document.body.classList.add('boxed');
+                }
+                else
+                {
+                    this.document.body.classList.remove('boxed');
+                }
 
-    this.statusChangeSubscription = this.ccService.statusChange$.subscribe(
-      (event: NgcStatusChangeEvent) => {
-        // you can use this.ccService.getConfig() to do stuff...
-      });
+                // Color theme - Use normal for loop for IE11 compatibility
+                for ( let i = 0; i < this.document.body.classList.length; i++ )
+                {
+                    const className = this.document.body.classList[i];
 
-    this.revokeChoiceSubscription = this.ccService.revokeChoice$.subscribe(
-      () => {
-        // you can use this.ccService.getConfig() to do stuff...
-      });
+                    if ( className.startsWith('theme-') )
+                    {
+                        this.document.body.classList.remove(className);
+                    }
+                }
 
-    this.noCookieLawSubscription = this.ccService.noCookieLaw$.subscribe(
-    (event: NgcNoCookieLawEvent) => {
-      // you can use this.ccService.getConfig() to do stuff...
-    });
-  }
+                this.document.body.classList.add(this.fuseConfig.colorTheme);
+            });
+    }
 
-  ngOnDestroy() {
-    // unsubscribe to cookieconsent observables to prevent memory leaks
-    this.popupOpenSubscription.unsubscribe();
-    this.popupCloseSubscription.unsubscribe();
-    this.initializeSubscription.unsubscribe();
-    this.statusChangeSubscription.unsubscribe();
-    this.revokeChoiceSubscription.unsubscribe();
-    this.noCookieLawSubscription.unsubscribe();
-  }
+    /**
+     * On destroy
+     */
+    ngOnDestroy(): void
+    {
+        // Unsubscribe from all subscriptions
+        this._unsubscribeAll.next();
+        this._unsubscribeAll.complete();
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Public methods
+    // -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Toggle sidebar open
+     *
+     * @param key
+     */
+    toggleSidebarOpen(key): void
+    {
+        this._fuseSidebarService.getSidebar(key).toggleOpen();
+    }
 }

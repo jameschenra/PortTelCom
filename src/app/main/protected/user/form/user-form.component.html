@@ -1,0 +1,234 @@
+<!-- CONTENT -->
+<div class="content p-24">
+
+  <div class="mb-24" fxLayout="column" fxLayoutAlign="start" fxLayout.gt-md="row">
+
+    <form (ngSubmit)="onSubmit($event)" class="mat-card mat-elevation-z4 p-24 mr-24" fxLayout="column"
+      fxLayoutAlign="start" fxFlex="1 0 auto" [formGroup]="form" fxLayoutGap="15px">
+
+      <app-loading [condition]="loadingCountry || loadingUser"></app-loading>
+
+      <div class="h2 mb-24">User Information</div>
+
+      <div fxLayout="row" fxLayoutAlign="start center" fxFlex="1 0 auto">
+
+        <!-- user type (individual or company) -->
+        <mat-form-field appearance="outline" fxFlex="50" class="pr-8">
+          <mat-label>User Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option [value]="1">
+              Individual
+            </mat-option>
+            <mat-option [value]="2">
+              Company
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix class="secondary-text">markunread_mailbox</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('type')">{{ controls.type.errors }}</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ user type -->
+
+        <!-- user role (support or regular) -->
+        <mat-form-field appearance="outline" fxFlex="50" class="pl-8">
+          <mat-label>User Role</mat-label>
+          <mat-select formControlName="roleID">
+            <mat-option [value]="1">
+              Administrator
+            </mat-option>
+            <mat-option [value]="2">
+              Support
+            </mat-option>
+            <mat-option [value]="3">
+              Regular
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix class="secondary-text">markunread_mailbox</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('roleID')">{{ controls.roleID.errors }}</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ user role -->
+
+      </div>
+
+      <div fxLayout="row" fxLayoutAlign="start center" fxFlex="1 0 auto" class="mt-4">
+
+        <!-- email -->
+        <mat-form-field appearance="outline" fxFlex="50" class="pr-8">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email">
+          <mat-icon matSuffix class="secondary-text">email</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('email')">{{ controls.email.errors }}</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ email -->
+
+         <!-- country -->
+         <mat-form-field appearance="outline" fxFlex="50" class="pl-8">
+          <mat-label>Country</mat-label>
+          <mat-select formControlName="countryID">
+            <mat-option *ngFor="let country of countries" [value]="country.ID">
+              {{ country.name }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix class="secondary-text">markunread_mailbox</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('countryID')">{{ controls.countryID.errors }}</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ country -->
+
+      </div>
+
+      <div *ngIf="controls.type.value == userTypes?.INDIVIDUAL" fxLayout="row" fxLayoutAlign="start center" fxFlex="1 0 auto">
+
+        <!-- first name -->
+        <mat-form-field appearance="outline" fxFlex="50" class="pr-8">
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="firstName">
+          <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('firstName')">{{ controls.firstName.errors }}</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ first name -->
+
+        <!-- last name -->
+        <mat-form-field appearance="outline" fxFlex="50" class="pl-8">
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="lastName">
+          <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('lastName')">{{ controls.lastName.errors }}</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ last name -->
+
+      </div>
+
+      <div fxLayout="row" fxLayoutAlign="start center" fxFlex="1 0 auto" class="mt-4">
+
+        <!-- password -->
+        <mat-form-field appearance="outline" fxFlex="50" class="pr-8">
+          <mat-label>Password</mat-label>
+          <input type="password" matInput formControlName="password">
+          <mat-icon matSuffix class="secondary-text">lock</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('password')">{{ controls.password.errors }}</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ password -->
+
+        <!-- password -->
+        <mat-form-field appearance="outline" fxFlex="50" class="pl-8">
+          <mat-label>Password Confirmation</mat-label>
+          <input type="password" matInput formControlName="password_confirmation">
+          <mat-icon matSuffix class="secondary-text">lock</mat-icon>
+          <mat-error>
+            <span *ngIf="isInvalid('password_confirmation')">Password not matched</span>
+          </mat-error>
+        </mat-form-field>
+        <!--./ password -->
+
+      </div>
+
+      <ng-container *ngIf="controls.type.value == userTypes.COMPANY">
+
+        <div fxLayout="row" fxLayoutAlign="start center" fxFlex="1 0 auto">
+
+          <!-- company name -->
+          <mat-form-field appearance="outline" fxFlex="50" class="pr-8">
+            <mat-label>Company Name</mat-label>
+            <input matInput formControlName="companyName">
+            <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+            <mat-error>
+              <span *ngIf="isInvalid('companyName')">{{ controls.companyName.errors }}</span>
+            </mat-error>
+          </mat-form-field>
+          <!--./ company name -->
+  
+          <!-- company address -->
+          <mat-form-field appearance="outline" fxFlex="50" class="pl-8">
+            <mat-label>Company Address</mat-label>
+            <input matInput formControlName="companyAddress">
+            <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+            <mat-error>
+              <span *ngIf="isInvalid('companyAddress')">{{ controls.companyAddress.errors }}</span>
+            </mat-error>
+          </mat-form-field>
+          <!--./ company address -->
+  
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="start center" fxFlex="1 0 auto">
+
+          <!-- Company Registration Number -->
+          <mat-form-field appearance="outline" fxFlex="50" class="pr-8">
+            <mat-label>Company Registration Number</mat-label>
+            <input matInput formControlName="companyRegistrationNumber">
+            <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+            <mat-error>
+              <span *ngIf="isInvalid('companyRegistrationNumber')">{{ controls.companyRegistrationNumber.errors }}</span>
+            </mat-error>
+          </mat-form-field>
+          <!--./ Company Registration Number -->
+  
+          <!-- Company VAT Number -->
+          <mat-form-field appearance="outline" fxFlex="50" class="pl-8">
+            <mat-label>Company VAT Number</mat-label>
+            <input matInput formControlName="companyVATNumber">
+            <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+            <mat-error>
+              <span *ngIf="isInvalid('companyVATNumber')">{{ controls.companyVATNumber.errors }}</span>
+            </mat-error>
+          </mat-form-field>
+          <!--./ Company VAT Number -->
+  
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="start center" fxFlex="1 0 auto">
+
+          <!-- Contact First Name -->
+          <mat-form-field appearance="outline" fxFlex="50" class="pr-8">
+            <mat-label>Contact First Name</mat-label>
+            <input matInput formControlName="contactFirstName">
+            <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+            <mat-error>
+              <span *ngIf="isInvalid('contactFirstName')">{{ controls.contactFirstName.errors }}</span>
+            </mat-error>
+          </mat-form-field>
+          <!--./ Contact First Name -->
+  
+          <!-- Contact Last Name -->
+          <mat-form-field appearance="outline" fxFlex="50" class="pl-8">
+            <mat-label>Contact Last Name</mat-label>
+            <input matInput formControlName="contactLastName">
+            <mat-icon matSuffix class="secondary-text">account_circle</mat-icon>
+            <mat-error>
+              <span *ngIf="isInvalid('contactLastName')">{{ controls.contactLastName.errors }}</span>
+            </mat-error>
+          </mat-form-field>
+          <!--./ Contact Last Name -->
+  
+        </div>
+        
+      </ng-container>
+
+      <br /><br />
+      <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px">
+        <button mat-raised-button type="submit" color="accent">
+          {{isNew ? 'Add User' : 'Update'}}
+        </button>
+        <button mat-raised-button type="button" color="warn" routerLink="/panel/user">
+          Cancel
+        </button>
+      </div>
+    </form>
+
+    <!-- / REACTIVE FORM EXAMPLE -->
+  </div>
+</div>
+<!-- / CONTENT -->

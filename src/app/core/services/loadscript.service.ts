@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class LoadScriptService {
-  removeScript(path: string) {
+  removeScript(path: string): void {
     // TODO: Remove DOM element that has attribute `data-path="${path}"`
     console.log(document.querySelector(`[data-path='${path}']`));
     document.querySelector(`[data-path='${path}']`).remove();

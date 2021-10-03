@@ -3,7 +3,7 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/c
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { AuthService } from 'src/app/core/services';
+import { AuthService } from 'app/core/services';
 import { Router } from '@angular/router';
 
 @Injectable()
@@ -20,7 +20,6 @@ export class ErrorInterceptor implements HttpInterceptor {
                 // auto logout if 401 response returned from api
                 if (this.authService.isLoggedIn) {
                     this.authService.clear();
-                    this.router.navigate(['/auth/login']);
                     location.reload(true);
                 }
             }

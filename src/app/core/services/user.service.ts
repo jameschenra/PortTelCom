@@ -1,52 +1,44 @@
 ﻿import { Injectable } from '@angular/core';
 import { HttpService } from './http.service';
 
-import { config } from 'src/config';
-import * as Utils from 'src/app/core/helpers/utils';
+import { config } from 'config';
+import { Observable } from 'rxjs';
+
+import * as Utils from 'app/core/helpers/utils';
 
 @Injectable()
 export class UserService {
     constructor(private http: HttpService) { }
 
-    getAll() {
-        return this.http.get(`${config.apiUrl}/users`);
+    getAll(expand?): Observable<any> {
+        const expandArg = Utils.genExpandArgs(expand);
+
+        return this.http.get(`${config.apiUrl}/user${expandArg}`);
     }
 
-    getById(id: number, expands?) {
+    getById(id: number, expands?): Observable<any> {
         const expandArg = Utils.genExpandArgs(expands);
 
         return this.http.get(`${config.apiUrl}/user/${id}${expandArg}`);
     }
 
-    register(user: any) {
+    create(user: any): Observable<any> {
+        return this.http.post(`${config.apiUrl}/user/create`, user);
+    }
+
+    register(user: any): Observable<any> {
         return this.http.post(`${config.apiUrl}/user/register`, user);
     }
 
-    update(user: any) {
-        return this.http.put(`${config.apiUrl}/users/${user.id}`, user);
+    update(user: any): Observable<any> {
+        return this.http.put(`${config.apiUrl}/user/${user.id}`, user);
     }
 
-    delete(id: number) {
-        return this.http.delete(`${config.apiUrl}/users/` + id);
+    delete(id: number): Observable<any> {
+        return this.http.get(`${config.apiUrl}/user/delete/` + id);
     }
 
-    verify(params) {
+    verify(params): Observable<any> {
         return this.http.post(`${config.apiUrl}/user/verifyEmail`, params);
-    }
-
-    requestVerify(params) {
-        return this.http.post(`${config.apiUrl}/user/requestEmailVerification`, params);
-    }
-
-    changePassword(params) {
-        return this.http.post(`${config.apiUrl}/user/changePassword`, params);
-    }
-
-    requestPassword(params) {
-        return this.http.post(`${config.apiUrl}/user/requestPasswordReset`, params);
-    }
-
-    resetPassword(params) {
-        return this.http.post(`${config.apiUrl}/user/resetPassword`, params);
     }
 }

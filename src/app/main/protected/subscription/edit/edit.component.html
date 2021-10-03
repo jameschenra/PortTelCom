@@ -1,0 +1,30 @@
+<div class="page-layout blank p-24" fusePerfectScrollbar>
+  <h2>Subscription Information</h2>
+
+  <app-loading [condition]="loading"></app-loading>
+
+  <mat-card>
+    <mat-card-content class="p-24">
+
+      <div *ngIf="subscription">
+        <h4><strong>Plan Name:</strong> {{ subscription.subscriptionPlan?.name }}</h4>
+
+        <h4><strong>User:</strong> {{ subscription.user?.firstName + ' ' + subscription.user?.lastName }}</h4>
+
+        <h4><strong>Payment Method:</strong> {{ subscription.paymentMethod?.method }}</h4>
+
+        <h4><strong>Payment Status:</strong> {{ subscription.paymentStatus?.status }}</h4>
+
+        <h4><strong>Applied VAT:</strong> {{ subscription.appliedVAT }}</h4>
+
+        <h4><strong>Period:</strong> {{ subscription.startDate }} - {{ subscription.endDate }}</h4>
+      </div>
+
+      <br />
+      <div class="text-center">
+        <button mat-raised-button color="accent" routerLink="/panel/subscription">Back</button>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>

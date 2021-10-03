@@ -1,54 +1,84 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule, Routes } from '@angular/router';
+import { MatMomentDateModule } from '@angular/material-moment-adapter';
+import { MatButtonModule, MatIconModule, MatSnackBarModule } from '@angular/material';
+import { TranslateModule } from '@ngx-translate/core';
+import 'hammerjs';
 
-import { AppRoutingModule } from './app-routing.module';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { SharedAppModule } from './shared/shared.module';
-import { SnotifyModule, SnotifyService, ToastDefaults } from 'ng-snotify';
-import { NgcCookieConsentModule, NgcCookieConsentConfig } from 'ngx-cookieconsent';
+import { FuseModule } from '@fuse/fuse.module';
+import { FuseSharedModule } from '@fuse/shared.module';
+import { FuseProgressBarModule, FuseSidebarModule, FuseThemeOptionsModule } from '@fuse/components';
 
+import { fuseConfig } from 'app/fuse-config';
+
+import { AppComponent } from 'app/app.component';
+import { LayoutModule } from 'app/layout/layout.module';
 import { AuthGuard, PublicGuard } from './core/guards';
-import { SharedDataService } from './core/services/shareddata.service';
 import { UserService } from './core/services';
+import { SharedAppModule } from './shared/shared.module';
+import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 
-import { AppComponent } from './app.component';
-
-const cookieConfig: NgcCookieConsentConfig = {
-  cookie: {
-    domain: 'localhost' // or 'your.domain.com' // it is mandatory to set a domain, for cookies to work properly (see https://goo.gl/S2Hy2A)
-  },
-  palette: {
-    popup: {
-      background: '#000'
+const appRoutes: Routes = [
+    {
+        path      : 'panel',
+        canActivate: [AuthGuard],
+        loadChildren: './main/protected/protected.module#ProtectedModule'
     },
-    button: {
-      background: '#f1d600'
+    {
+        path      : 'login',
+        canActivate: [PublicGuard],
+        loadChildren: './main/login/login.module#LoginModule'
+    },
+    {
+        path      : '**',
+        redirectTo: 'login'
     }
-  },
-  theme: 'edgeless',
-  type: 'opt-out'
-};
+];
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    SharedAppModule,
-    SnotifyModule,
-    NgcCookieConsentModule.forRoot(cookieConfig)
-  ],
-  providers: [
-    { provide: 'SnotifyToastConfig', useValue: ToastDefaults },
-    SnotifyService,
-    UserService,
-    AuthGuard,
-    PublicGuard,
-    SharedDataService,
-    { provide: LocationStrategy, useClass: HashLocationStrategy }
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent
+    ],
+    imports     : [
+        BrowserModule,
+        BrowserAnimationsModule,
+        HttpClientModule,
+        RouterModule.forRoot(appRoutes),
+
+        TranslateModule.forRoot(),
+
+        // Material moment date module
+        MatMomentDateModule,
+
+        // Material
+        MatButtonModule,
+        MatIconModule,
+        MatSnackBarModule,
+
+        // Fuse modules
+        FuseModule.forRoot(fuseConfig),
+        FuseProgressBarModule,
+        FuseSharedModule,
+        FuseSidebarModule,
+        FuseThemeOptionsModule,
+
+        // App modules
+        LayoutModule,
+        SharedAppModule
+    ],
+    bootstrap   : [
+        AppComponent
+    ],
+    providers   : [
+        AuthGuard,
+        PublicGuard,
+        UserService,
+        { provide: LocationStrategy, useClass: HashLocationStrategy }
+    ]
 })
-export class AppModule { }
+export class AppModule
+{
+}

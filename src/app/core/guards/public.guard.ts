@@ -9,10 +9,10 @@ export class PublicGuard implements CanActivate {
   }
 
   canActivate(next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot) {
+    state: RouterStateSnapshot): boolean {
 
     if (this.authService.isLoggedIn) {
-      this.router.navigate(['/account']);
+      this.router.navigate(['/panel']);
       return false;
     } else {
       return true;

@@ -1,0 +1,59 @@
+<div class="page-layout blank p-24" fusePerfectScrollbar>
+  <h2>User Information</h2>
+
+  <app-loading [condition]="loading"></app-loading>
+
+  <mat-card>
+    <mat-card-content class="p-24">
+
+      <div *ngIf="user">
+        <div fxLayout="row">
+
+          <!-- left column -->
+          <div fxFlex="1 auto">
+            <h4><strong>Type:</strong> {{ user.type == 1 ? 'Individual' : 'Company' }}</h4>
+
+            <h4 *ngIf="user.type == userTypes.INDIVIDUAL"><strong>Name:</strong> {{ user.firstName + ' ' + user.lastName}}</h4>
+    
+            <h4 *ngIf="user.type == userTypes.COMPANY"><strong>Contact Name:</strong> {{ user.contactFirstName + ' ' + user.contactLastName}}</h4>
+    
+            <h4><strong>Role:</strong> {{ user.role?.name }}</h4>
+    
+            <h4><strong>Email:</strong> {{ user.email }}</h4>
+
+            <h4><strong>Country:</strong> {{ user.country.name }}</h4>
+    
+            <h4><strong>Email Verified:</strong> {{ user.emailVerified }}</h4>
+    
+            <ng-container *ngIf="user.type == userTypes.COMPANY">
+                <h4><strong>Company Name:</strong> {{ user.companyName }}</h4>
+    
+                <h4><strong>Company Address:</strong> {{ user.companyAddress }}</h4>
+    
+                <h4><strong>Company Registration Number:</strong> {{ user.companyRegistrationNumber }}</h4>
+    
+                <h4><strong>Company VAT Number:</strong> {{ user.companyVATNumber }}</h4>
+            </ng-container>
+          </div>
+          <!-- left column -->
+      
+          <!-- right column -->
+          <div fxFlex="1 auto">
+            <h4><strong>Active Subscription</strong></h4>
+            <h4><strong>Plan</strong>{{ activeSubscription?.subscriptionPlan?.name }}</h4>
+            <h4><strong>Start Date</strong>{{ activeSubscription?.startDate | date:'yyyy-MM-dd' }}</h4>
+            <h4><strong>End Date</strong>{{ activeSubscription?.endDate | date:'yyyy-MM-dd' }}</h4>
+            <h4><strong>Remain</strong>{{ activeSubscription?.remainingDays }} {{ activeSubscription ? 'days' : '' }}</h4>
+          </div>
+          <!-- right column -->
+          </div>
+      </div>
+        
+      <br />
+      <div class="text-center">
+        <button mat-raised-button color="accent" routerLink="/panel/user">Back</button>
+      </div>
+      
+    </mat-card-content>
+  </mat-card>
+</div>

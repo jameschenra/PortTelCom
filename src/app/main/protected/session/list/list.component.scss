@@ -1,0 +1,40 @@
+table {
+    width: 100%;
+
+    td, th {
+        word-break: break-all;
+
+        &:not(:first-child):not(:last-child) {
+            padding: 5px;
+        }
+    }
+}
+
+.mat-column-No {
+    width: 5%;
+}
+  
+.mat-column-user {
+    width: 10%;
+}
+
+.mat-column-sessionID {
+    width: 35%;
+}
+
+.mat-column-deviceID {
+    width: 20%;
+}
+
+.mat-column-deviceName {
+    width: 15%;
+}
+
+.mat-column-expiresIn {
+    width: 10%;
+}
+
+.mat-form-field {
+    font-size: 14px;
+    width: 100%;
+}
